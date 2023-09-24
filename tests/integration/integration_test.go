@@ -1,7 +1,11 @@
+//go:build integration
+// +build integration
+
 package integration_test
 
 import (
 	"context"
+	"testing"
 
 	"github.com/leonid-tankov/OTUS_go_final_project/internal/server/grpc/pb"
 	"github.com/leonid-tankov/OTUS_go_final_project/internal/storage"
@@ -26,6 +30,8 @@ func (a *AppSuite) SetupSuite() {
 	a.appClient = pb.NewBannerRotationClient(conn)
 }
 
+func (a *AppSuite) SetupTest() {}
+
 func (a *AppSuite) TestAddBanner() {
 	a.addBanner(1, 1)
 
@@ -36,19 +42,19 @@ func (a *AppSuite) TestAddBanner() {
 	a.Require().Error(err)
 
 	_, err = a.appClient.AddBanner(a.ctx, &pb.BannerRequest{SlotId: 1, BannerId: 1})
-	a.Require().ErrorIs(err, storage.ErrHasRotation)
+	a.Require().ErrorAs(err, &storage.ErrHasRotation)
 
 	a.deleteBanner(1, 1)
 }
 
 func (a *AppSuite) TestDeleteBanner() {
 	_, err := a.appClient.DeleteBanner(a.ctx, &pb.BannerRequest{SlotId: 1, BannerId: 1})
-	a.Require().ErrorIs(err, storage.ErrNoRowsAffected)
+	a.Require().ErrorAs(err, &storage.ErrNoRowsAffected)
 }
 
 func (a *AppSuite) TestClickBanner() {
 	_, err := a.appClient.ClickBanner(a.ctx, &pb.BannerRequest{SlotId: 1, BannerId: 1, SocialDemGroupId: 1})
-	a.Require().ErrorIs(err, storage.ErrNoRowsAffected)
+	a.Require().ErrorAs(err, &storage.ErrNoRowsAffected)
 }
 
 func (a *AppSuite) addBanner(bannerID, slotID int64) {
@@ -78,3 +84,7 @@ func (a *AppSuite) deleteBanner(bannerID, slotID int64) {
 //	_, err := a.appClient.ClickBanner(a.ctx, &req)
 //	a.Require().NoError(err)
 //}
+
+func TestAppSuite(t *testing.T) {
+	suite.Run(t, new(AppSuite))
+}
