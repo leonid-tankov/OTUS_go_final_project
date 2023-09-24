@@ -7,19 +7,19 @@ import (
 	"time"
 
 	"github.com/leonid-tankov/OTUS_go_final_project/internal/config"
-	"github.com/segmentio/kafka-go"
+	kafkaexternal "github.com/segmentio/kafka-go"
 )
 
 type Producer struct {
-	Writer *kafka.Writer
+	Writer *kafkaexternal.Writer
 	Broker string
 }
 
 func NewProducer(cfg *config.Config) *Producer {
 	broker := fmt.Sprintf("%s:%s", cfg.Kafka.Host, cfg.Kafka.Port)
 	return &Producer{
-		Writer: &kafka.Writer{
-			Addr:  kafka.TCP(broker),
+		Writer: &kafkaexternal.Writer{
+			Addr:  kafkaexternal.TCP(broker),
 			Topic: "banner-rotation-analytics",
 		},
 		Broker: broker,
@@ -31,14 +31,14 @@ func (p *Producer) Produce(ctx context.Context, msg Message) error {
 	if err != nil {
 		return err
 	}
-	return p.Writer.WriteMessages(ctx, kafka.Message{
+	return p.Writer.WriteMessages(ctx, kafkaexternal.Message{
 		Value: value,
 	})
 }
 
 func (p *Producer) CreateTopic(topic string) error {
-	var conn *kafka.Conn
-	conn, err := kafka.Dial("tcp", p.Broker)
+	var conn *kafkaexternal.Conn
+	conn, err := kafkaexternal.Dial("tcp", p.Broker)
 	if err != nil {
 		conn, err = reconnect(p.Broker, 1)
 		if err != nil {
@@ -47,7 +47,7 @@ func (p *Producer) CreateTopic(topic string) error {
 	}
 	defer conn.Close()
 
-	topicConfigs := []kafka.TopicConfig{
+	topicConfigs := []kafkaexternal.TopicConfig{
 		{
 			Topic:             topic,
 			NumPartitions:     1,
@@ -61,9 +61,9 @@ func (p *Producer) CreateTopic(topic string) error {
 	return nil
 }
 
-func reconnect(broker string, retryCount int) (*kafka.Conn, error) {
+func reconnect(broker string, retryCount int) (*kafkaexternal.Conn, error) {
 	time.Sleep(time.Second * 3)
-	conn, err := kafka.Dial("tcp", broker)
+	conn, err := kafkaexternal.Dial("tcp", broker)
 	if err != nil {
 		if retryCount < 5 {
 			return reconnect(broker, retryCount+1)

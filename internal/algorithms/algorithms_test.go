@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/leonid-tankov/OTUS_go_final_project/internal/storage"
+	"github.com/stretchr/testify/require"
 )
 
 func TestMultiArmedBandit(t *testing.T) {

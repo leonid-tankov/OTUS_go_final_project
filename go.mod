@@ -1,6 +1,6 @@
 module github.com/leonid-tankov/OTUS_go_final_project
 
-go 1.21
+go 1.19
 
 require (
 	github.com/golang/protobuf v1.5.3

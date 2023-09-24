@@ -1,6 +1,7 @@
 BIN := "./bin/app"
 DOCKER_IMG="banner-rotation:develop"
 DOCKER_COMPOSE_DIR="./deployments/docker-compose.yaml"
+GOROOT?=$(shell $(GO) env GOROOT)
 
 generate:
 	rm -rf internal/server/grpc/pb
@@ -27,17 +28,17 @@ run: build
 	docker-compose -f $(DOCKER_COMPOSE_DIR) up
 
 test:
-	go test  -race -count 100 ./internal/...
+	go test -race -count 100 ./internal/...
 
 integration-tests: run
-	go test -tags integration -race ./internal/...
+	go test -tags integration -race ./tests/...
 	docker-compose -f $(DOCKER_COMPOSE_DIR) down
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
 
 lint: install-lint-deps
-	golangci-lint run ./...
+	GOROOT=$(GOROOT) golangci-lint run ./...
 
 down:
 	docker-compose -f $(DOCKER_COMPOSE_DIR) down
