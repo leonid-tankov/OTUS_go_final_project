@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+package grpc;
+option go_package = "./;pb";
+
+service BannerRotation {
+  rpc AddBanner(BannerRequest) returns (google.protobuf.Empty) {}
+  rpc DeleteBanner(BannerRequest) returns (google.protobuf.Empty) {}
+  rpc ClickBanner(BannerRequest) returns (google.protobuf.Empty) {}
+  rpc GetBanner(BannerRequest) returns (BannerResponse) {}
+}
+
+message BannerRequest {
+  int64 slot_id = 1;
+  int64 banner_id = 2;
+  int64 social_dem_group_id = 3;
+}
+
+message BannerResponse {
+  int64 banner_id = 1;
+}
