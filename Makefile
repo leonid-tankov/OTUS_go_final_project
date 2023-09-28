@@ -25,14 +25,16 @@ run-img: build
 	docker run $(DOCKER_IMG)
 
 run: build
-	docker-compose -f $(DOCKER_COMPOSE_DIR) up
+	make down
+	docker-compose -f $(DOCKER_COMPOSE_DIR) up -d --wait
 
 test:
-	go test -tags unit -race -count 100 ./...
+	go test -v -tags unit -race -count 100 ./...
 
 integration-tests: run
-	go test -tags integration -race ./...
-	docker-compose -f $(DOCKER_COMPOSE_DIR) down
+	sleep 20
+	go test -v -tags integration -race ./...
+	make down
 
 install-lint-deps:
 	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1

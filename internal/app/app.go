@@ -111,15 +111,15 @@ func (a *App) GetBanner(ctx context.Context, slotID, socialDemGroupID int64) (in
 	if err != nil {
 		return 0, err
 	}
-	ID := algorithms.MultiArmedBandit(counters, a.Config.Probability)
+	id := algorithms.MultiArmedBandit(counters, a.Config.Probability)
 	if err = a.Producer.Produce(ctx, kafka.Message{
 		EventType:        kafka.Show,
-		BannerID:         ID,
+		BannerID:         id,
 		SlotID:           slotID,
 		SocialDemGroupID: socialDemGroupID,
 		Timestamp:        time.Now(),
 	}); err != nil {
-		return ID, err
+		return id, err
 	}
-	return ID, nil
+	return id, nil
 }
